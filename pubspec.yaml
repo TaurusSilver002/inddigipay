@@ -44,6 +44,8 @@ dependencies:
   google_sign_in: ^6.3.0
   qr_flutter: ^4.1.0
   get_it: ^8.0.3
+  flutter_secure_storage: ^9.2.4
+  mobile_scanner: ^6.0.10
 
 dev_dependencies:
   flutter_test:

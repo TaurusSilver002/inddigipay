@@ -39,5 +39,11 @@ class AppConfig{
   static const String deposit='https://api.inddigi.com//transaction/transactions/crypto-deposit';
 
   //new app wallet 
-  static const String walletcreate='https://api.inddigi.com/transaction/wallets';
+  static const String walletcreate='https://api.inddigi.com/transaction/wallet/create';
+  static const String existingwallet='https://api.inddigi.com/transaction/wallet/get_wallet_by_private_key';
+  static const String mnemonic='https://api.inddigi.com/transaction/wallet/get_wallet_by_mnemonic';
+  static const String walletsend='https://api.inddigi.com/transaction/wallet/send';
+  static const String balance='https://api.inddigi.com/transaction/wallet/balance';
+
+  static const String transactionhistory='https://api.inddigi.com/transaction/wallet/viewTransaction';
 }

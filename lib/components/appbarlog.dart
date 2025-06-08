@@ -19,34 +19,9 @@ class AppbarlogApp extends StatelessWidget implements PreferredSizeWidget {
             child: Image.asset(AppImages.logo, height: 50)),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-          },
-          child: const Text('Home',      
-                style: TextStyle(color: Colors.white,fontSize: 12),
-),
-        ),
-        TextButton(
-          onPressed: () {
-          },
-          child: const Text('Profile',
-                style: TextStyle(color: Colors.white,fontSize: 12),
-),
-        ),
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: Colors.grey[200],
-          child: const Icon(
-            Icons.person,
-            size: 16,
-            color: Colors.grey,
-          ),
-        ),
-        SizedBox(width: 8,)
-      ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(60.0);}
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}

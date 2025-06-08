@@ -10,7 +10,7 @@ import 'package:inddigipay/components/customnav.dart';
 import 'package:inddigipay/components/gradientoutlinedbutton.dart';
 import 'package:inddigipay/config.dart';
 import 'package:inddigipay/repo/auth.dart';
-import 'package:inddigipay/services/google.dart';
+import 'package:inddigipay/routes/services/google.dart';
 
 class LoginpageApp extends StatefulWidget {
   const LoginpageApp({super.key});
