@@ -12,6 +12,7 @@ class AppColors {
 class AppImages {
   static const String logo = 'assets/images/logovio.png';
     static const String background1='assets/images/landing1.png';
+    static const String background2='assets/images/mining.png';
 
   static const String google='assets/images/google.png';
   static const String signcardapp='assets/images/appsignfinal.png';

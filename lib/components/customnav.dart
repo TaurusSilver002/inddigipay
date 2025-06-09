@@ -11,29 +11,35 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
-  @override  Widget build(BuildContext context) {
-    // Simply call the provided onTap callback
+  @override
+  Widget build(BuildContext context) {
     void _handleNavigation(int index) {
       onTap(index);
     }
-
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: _handleNavigation, // Use our custom handler
-      backgroundColor: AppColors.background,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textSecondary,
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: _handleNavigation,
+        backgroundColor: AppColors.background,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 }

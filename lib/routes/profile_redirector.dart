@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:inddigipay/routes/dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dashboard.dart';
-import 'login.dart';
+import 'package:inddigipay/config.dart';
+import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
+import 'package:inddigipay/services/locator.dart';
+import 'package:inddigipay/routes/login.dart';
+import 'package:dio/dio.dart';
+import 'profile.dart';
 
 class ProfileRedirector extends StatelessWidget {
   const ProfileRedirector({super.key});
@@ -14,23 +20,25 @@ class ProfileRedirector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _isLoggedIn(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.data == true) {
-          // Already logged in
-          Future.microtask(() => Navigator.pushReplacementNamed(context, '/dashboard'));
-        } else {
-          // Not logged in
-          Future.microtask(() => Navigator.pushReplacementNamed(context, '/login'));
-        }
-        return const SizedBox.shrink();
-      },
+    return Container(
+      color: AppColors.background,
+      child: FutureBuilder<bool>(
+        future: _isLoggedIn(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.data == true) {
+            return BlocProvider(
+              create: (context) => UserBloc(locator<Dio>())..add(FetchUserEvent()),
+              child: const DashboardApp(),
+            );
+          } else {
+            return const LoginpageApp();
+          }
+        },
+      ),
     );
   }
 }

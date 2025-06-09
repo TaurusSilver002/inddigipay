@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:inddigipay/components/qr_scanner.dart';
-import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
-import 'package:inddigipay/bloc/walletsendBloc/walletsend_bloc.dart';
-import 'package:inddigipay/bloc/walletbalanceBloc/walletbalance_bloc.dart';
-import 'package:inddigipay/bloc/transHistoryBloc/trans_history_bloc.dart';
-import 'package:inddigipay/components/customnav.dart';
-import 'package:inddigipay/config.dart';
-import 'package:inddigipay/repo/walletsend.dart';
-import 'package:inddigipay/routes/wallets.dart';
-import 'package:inddigipay/routes/transaction_history.dart';
-import 'package:inddigipay/routes/homepage.dart';
-import 'package:inddigipay/routes/profile.dart';
-import 'package:inddigipay/services/locator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
+import 'package:inddigipay/bloc/walletbalanceBloc/walletbalance_bloc.dart';
+import 'package:inddigipay/bloc/walletsendBloc/walletsend_bloc.dart';
+import 'package:inddigipay/bloc/transHistoryBloc/trans_history_bloc.dart';
+import 'package:inddigipay/components/customnav.dart';
+import 'package:inddigipay/components/qr_scanner.dart';
+import 'package:inddigipay/config.dart';
+import 'package:inddigipay/repo/walletsend.dart';
+import 'package:inddigipay/routes/homepage.dart';
+import 'package:inddigipay/routes/login.dart';
+import 'package:inddigipay/routes/profile_redirector.dart';
+import 'package:inddigipay/routes/transaction_history.dart';
+import 'package:inddigipay/routes/wallets.dart';
+import 'package:inddigipay/services/locator.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,38 +27,85 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {  
+class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   String selectedWalletName = 'Select Wallet';
   String? selectedWalletAddress;
   final _secureStorage = const FlutterSecureStorage();
+  final PageController _pageController = PageController();
 
-  @override  
+  @override
   void initState() {
     super.initState();
     _loadSelectedWallet();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadSelectedWallet() async {
     final currentName = await _secureStorage.read(key: 'currentName');
     final currentAddress = await _secureStorage.read(key: 'currentAddress');
-    
+
     if (currentName != null && currentAddress != null && mounted) {
       setState(() {
         selectedWalletName = currentName;
         selectedWalletAddress = currentAddress;
       });
-      
-      if (mounted && context.mounted) {
+
+      if (context.mounted) {
         context.read<WalletbalanceBloc>().add(FetchBalanceEvent(address: currentAddress));
       }
     }
   }
 
-  void _onNavTap(int index) {
+  void _handleTabTap(int index) {
     setState(() {
       _currentIndex = index;
     });
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _openSendDialog(BuildContext context) {
+    if (selectedWalletAddress == null) {
+      Fluttertoast.showToast(msg: "Please select a wallet first");
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => BlocProvider(
+        create: (context) => WalletsendBloc(locator<WalletSendRepo>()),
+        child: SendDialog(
+          walletAddress: selectedWalletAddress!,
+          walletName: selectedWalletName,
+          secureStorage: _secureStorage,
+          onSuccess: _loadSelectedWallet,
+        ),
+      ),
+    );
+  }
+
+  void _openReceiveDialog(BuildContext context) {
+    if (selectedWalletAddress == null) {
+      Fluttertoast.showToast(msg: "Please select a wallet first");
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => ReceiveDialog(
+        walletAddress: selectedWalletAddress!,
+        walletName: selectedWalletName,
+      ),
+    );
   }
 
   Future<void> _openWalletsPage() async {
@@ -70,141 +119,102 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-    
+
     if (result == true) {
       await _loadSelectedWallet();
     }
   }
 
+  Future<bool> _onWillPop() async {
+    if (_currentIndex != 0) {
+      _handleTabTap(0);
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => UserBloc()..add(FetchUserEvent()),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            appBar: AppBar(
-              backgroundColor: AppColors.background,
-              elevation: 0,
-              leadingWidth: 96,
-              leading: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.work_history, color: AppColors.textPrimary),
-                    onPressed: () async {
-                      if (selectedWalletAddress == null) {
-                        Fluttertoast.showToast(msg: "Please select a wallet first");
-                        return;
-                      }
-                      
-                      final transHistoryBloc = TransHistoryBloc();
-                      
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BlocProvider(
-                            create: (_) => transHistoryBloc,
-                            child: TransactionHistory(walletAddress: selectedWalletAddress!),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.qr_code, color: AppColors.textPrimary),
-                    onPressed: () async {
-                      if (selectedWalletAddress == null) {
-                        Fluttertoast.showToast(msg: "Please select a wallet first");
-                        return;
-                      }
-                      
-                      showDialog(
-                        context: context,
-                        builder: (context) => ReceiveDialog(
-                          walletAddress: selectedWalletAddress!,
-                          walletName: selectedWalletName,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              title: GestureDetector(
-                onTap: _openWalletsPage,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+    context.read<UserBloc>().add(const FetchUserEvent());
+
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: _currentIndex == 0
+            ? AppBar(
+                backgroundColor: AppColors.background,
+                elevation: 0,
+                leadingWidth: 96,
+                leading: Row(
                   children: [
-                    Text(
-                      selectedWalletName,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.work_history, color: AppColors.textPrimary),
+                      onPressed: () async {
+                        if (selectedWalletAddress == null) {
+                          Fluttertoast.showToast(msg: "Please select a wallet first");
+                          return;
+                        }
+                        final transHistoryBloc = TransHistoryBloc();
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (_) => transHistoryBloc,
+                              child: TransactionHistory(walletAddress: selectedWalletAddress!),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    const Icon(Icons.arrow_drop_down, color: AppColors.textPrimary),
+                    IconButton(
+                      icon: const Icon(Icons.qr_code, color: AppColors.textPrimary),
+                      onPressed: () => _openReceiveDialog(context),
+                    ),
                   ],
                 ),
-              ),
-              centerTitle: true,
-            ),
-            body: IndexedStack(
-              index: _currentIndex,
-              children: [
-                HomePage(
-                  selectedWalletName: selectedWalletName,
-                  selectedWalletAddress: selectedWalletAddress,
-                  onSendTap: () async {
-                    final currentName = await _secureStorage.read(key: 'currentName');
-                    final currentAddress = await _secureStorage.read(key: 'currentAddress');
-                    
-                    if (currentName == null || currentAddress == null) {
-                      Fluttertoast.showToast(msg: "Please select a wallet first");
-                      return;
-                    }
-                    if (!mounted) return;
-                    
-                    final walletSendRepo = locator<WalletSendRepo>();
-                    showDialog(
-                      context: context,
-                      builder: (context) => BlocProvider(
-                        create: (context) => WalletsendBloc(walletSendRepo),
-                        child: SendDialog(
-                          walletAddress: currentAddress,
-                          walletName: currentName,
+                title: GestureDetector(
+                  onTap: _openWalletsPage,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedWalletName,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    );
-                  },
-                  onReceiveTap: () async {
-                    final currentName = await _secureStorage.read(key: 'currentName');
-                    final currentAddress = await _secureStorage.read(key: 'currentAddress');
-                    
-                    if (currentName == null || currentAddress == null) {
-                      Fluttertoast.showToast(msg: "Please select a wallet first");
-                      return;
-                    }
-                    if (!mounted) return;
-                    
-                    showDialog(
-                      context: context,
-                      builder: (context) => ReceiveDialog(
-                        walletAddress: currentAddress,
-                        walletName: currentName,
-                      ),
-                    );
-                  },
+                      const Icon(Icons.arrow_drop_down, color: AppColors.textPrimary),
+                    ],
+                  ),
                 ),
-                const ProfilePage(),
-              ],
+                centerTitle: true,
+              )
+            : null,
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          children: [
+            HomePage(
+              selectedWalletName: selectedWalletName,
+              selectedWalletAddress: selectedWalletAddress,
+              onSendTap: () => _openSendDialog(context),
+              onReceiveTap: () => _openReceiveDialog(context),
             ),
-            bottomNavigationBar: CustomBottomNavBar(
-              currentIndex: _currentIndex,
-              onTap: _onNavTap,
-            ),
-          );
-        },
+            const ProfileRedirector(),
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          onTap: _handleTabTap,
+        ),
       ),
     );
   }
@@ -213,11 +223,15 @@ class _HomeScreenState extends State<HomeScreen> {
 class SendDialog extends StatefulWidget {
   final String walletAddress;
   final String walletName;
-  
+  final FlutterSecureStorage secureStorage;
+  final VoidCallback onSuccess;
+
   const SendDialog({
     Key? key,
     required this.walletAddress,
     required this.walletName,
+    required this.secureStorage,
+    required this.onSuccess,
   }) : super(key: key);
 
   @override
@@ -228,7 +242,6 @@ class _SendDialogState extends State<SendDialog> {
   final _recipientController = TextEditingController();
   final _amountController = TextEditingController();
   final _passphraseController = TextEditingController();
-  final _secureStorage = const FlutterSecureStorage();
 
   @override
   void dispose() {
@@ -237,6 +250,7 @@ class _SendDialogState extends State<SendDialog> {
     _passphraseController.dispose();
     super.dispose();
   }
+
   Future<void> _handleSend(BuildContext context) async {
     final recipient = _recipientController.text.trim();
     final amountText = _amountController.text.trim();
@@ -261,14 +275,13 @@ class _SendDialogState extends State<SendDialog> {
 
     if (!mounted) return;
 
-    // Send transaction using entered passphrase
     context.read<WalletsendBloc>().add(
-      SendTransactionEvent(
-        passPhrase: passPhrase,
-        to: recipient,
-        amount: amount,
-      ),
-    );
+          SendTransactionEvent(
+            passPhrase: passPhrase,
+            to: recipient,
+            amount: amount,
+          ),
+        );
   }
 
   @override
@@ -285,7 +298,6 @@ class _SendDialogState extends State<SendDialog> {
         child: BlocListener<WalletsendBloc, WalletsendState>(
           listener: (context, state) async {
             if (state is WalletsendSuccess) {
-              // Show success animation
               showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -303,22 +315,19 @@ class _SendDialogState extends State<SendDialog> {
                 },
               );
 
-              // Wait for 1 second
               await Future.delayed(const Duration(seconds: 1));
 
-              // Close both dialogs and show toast
               if (!mounted) return;
-              Navigator.of(context).pop(); // Close success animation              Navigator.of(context).pop(); // Close send dialog
-              
-              // Get current address from secure storage
-              final currentAddress = await _secureStorage.read(key: 'currentAddress');
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+
+              final currentAddress = await widget.secureStorage.read(key: 'currentAddress');
               if (currentAddress != null) {
-                // Refresh wallet balance using current address
                 context.read<WalletbalanceBloc>().add(
-                  FetchBalanceEvent(address: currentAddress)
-                );
+                      FetchBalanceEvent(address: currentAddress),
+                    );
               }
-              
+
               Fluttertoast.showToast(
                 msg: state.message,
                 backgroundColor: Colors.green,
@@ -343,7 +352,8 @@ class _SendDialogState extends State<SendDialog> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),              Row(
+              const SizedBox(height: 16),
+              Row(
                 children: [
                   Expanded(
                     child: TextField(
@@ -407,7 +417,7 @@ class _SendDialogState extends State<SendDialog> {
               TextField(
                 controller: _amountController,
                 style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   hintText: 'Amount',
                   hintStyle: TextStyle(color: Colors.grey),
@@ -417,14 +427,13 @@ class _SendDialogState extends State<SendDialog> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColors.primary),
                   ),
-                ),              ),
+                ),
+              ),
               const SizedBox(height: 16),
               BlocBuilder<WalletsendBloc, WalletsendState>(
                 builder: (context, state) {
                   return ElevatedButton(
-                    onPressed: state is WalletsendLoading
-                        ? null
-                        : () => _handleSend(context),
+                    onPressed: state is WalletsendLoading ? null : () => _handleSend(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -438,8 +447,7 @@ class _SendDialogState extends State<SendDialog> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
@@ -452,7 +460,8 @@ class _SendDialogState extends State<SendDialog> {
             ],
           ),
         ),
-    ));
+      ),
+    );
   }
 }
 

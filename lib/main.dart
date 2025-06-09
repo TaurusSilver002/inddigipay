@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
 import 'package:inddigipay/bloc/transHistoryBloc/trans_history_bloc.dart';
 import 'package:inddigipay/routes/dashboard.dart';
 import 'package:inddigipay/routes/homescreen.dart';
@@ -33,12 +34,11 @@ class MyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       builder: (context, child) {        return MultiBlocProvider(
-          providers: [
-            BlocProvider<WalletbalanceBloc>(
+          providers: [            BlocProvider<WalletbalanceBloc>(
               create: (_) => WalletbalanceBloc(locator<WalletBalanceRepo>()),
             ),
             BlocProvider(create: (_) => TransactionBloc()),
-            BlocProvider(create: (_) => UserBloc()),
+            BlocProvider(create: (_) => UserBloc(locator<Dio>())),
             BlocProvider(create: (_) => WithdrawBloc()),
             BlocProvider(create: (_) => WalletcreateBloc(locator<WalletCreateRepo>())),
           ],
