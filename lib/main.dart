@@ -8,6 +8,7 @@ import 'package:inddigipay/routes/dashboard.dart';
 import 'package:inddigipay/routes/homescreen.dart';
 import 'package:inddigipay/routes/homescreen_new.dart';
 import 'package:inddigipay/routes/login.dart';
+import 'package:inddigipay/routes/signup.dart';
 import 'package:inddigipay/routes/transaction_history.dart';
 import 'package:inddigipay/routes/wallets.dart';
 import 'package:inddigipay/routes/profile_redirector.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
             BlocProvider(create: (_) => WalletcreateBloc(locator<WalletCreateRepo>())),
           ],
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             initialRoute: '/',
             routes: {
               '/': (context) => const HomeScreen(), 
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
               '/wallets': (context) => const WalletsPage(),
               '/login': (context) => const LoginpageApp(),
               '/profile': (context) => const ProfileRedirector(),
+              '/signup':(context) => const SignUpApp()
             },
           ),
         );

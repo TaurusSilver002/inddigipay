@@ -7,7 +7,6 @@ import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
 import 'package:inddigipay/services/locator.dart';
 import 'package:inddigipay/routes/login.dart';
 import 'package:dio/dio.dart';
-import 'profile.dart';
 
 class ProfileRedirector extends StatelessWidget {
   const ProfileRedirector({super.key});

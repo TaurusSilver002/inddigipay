@@ -9,7 +9,11 @@ import 'package:inddigipay/components/custominput.dart';
 import 'package:inddigipay/components/gradientoutlinedbutton.dart';
 import 'package:inddigipay/config.dart';
 import 'package:inddigipay/repo/auth.dart';
+import 'package:inddigipay/routes/dashboard.dart';
 import 'package:inddigipay/routes/services/google.dart';
+import 'package:inddigipay/routes/signup.dart';
+import 'package:inddigipay/utils/navigation.dart';
+import 'package:inddigipay/utils/route_transitions.dart';
 
 class LoginpageApp extends StatefulWidget {
   const LoginpageApp({super.key});
@@ -36,13 +40,14 @@ class _LoginpageAppState extends State<LoginpageApp> {
     _passwordController.dispose();
     _loginBloc.close();
     super.dispose();
-  }
-  void _handleStateChanges(BuildContext context, LoginState state) {
+  }  void _handleStateChanges(BuildContext context, LoginState state) {
     if (state is LoginLoadingState) {
       Fluttertoast.showToast(msg: 'Submitting...');
     } else if (state is LoginSuccessState) {
       Fluttertoast.showToast(msg: 'Logged in successfully!');
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Navigator.of(context).pushReplacement(
+        SlidePageRoute(page: DashboardApp()),
+      );
     } else if (state is LoginFailureState) {
       Fluttertoast.showToast(
         msg: state.message.isNotEmpty ? state.message : 'Error occurred',
@@ -188,8 +193,33 @@ class _LoginpageAppState extends State<LoginpageApp> {
             );
           },
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         _buildGoogleLogin(),
+        const SizedBox(height: 16),
+        RichText(
+          text: TextSpan(
+            text: 'Don\'t have an account? ',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+            children: [
+              TextSpan(                text: 'Sign Up',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.of(context).push(
+                      SlidePageRoute(page:  SignUpApp())
+                    );
+                  },
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }

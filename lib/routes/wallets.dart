@@ -170,258 +170,139 @@ class _WalletsPageState extends State<WalletsPage> {
       }
     }
   }
-
   void _showWalletOptionsDialog() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF1E1E1E),
-          title: const Text(
-            'Choose Wallet Option',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  minimumSize: const Size(double.infinity, 45),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _createWallet();
-                },
-                child: const Text('Create New Wallet'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  minimumSize: const Size(double.infinity, 45),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showImportWalletDialog();
-                },
-                child: const Text('Add Existing Wallet via Private Key'),
-              ),
-                            const SizedBox(height: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  minimumSize: const Size(double.infinity, 45),
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showImportMnemonicWalletDialog();
-                },
-                child: const Text('Add Existing Wallet via Mnemonic'),
-              ),
-
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showImportWalletDialog() {
-    final TextEditingController passphraseController = TextEditingController();
-    bool isLoading = false;
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF1E1E1E),
-              title: const Text(
-                'Import Wallet',
-                style: TextStyle(color: Colors.white),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: passphraseController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your privatekey',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: AppColors.primary),
-                      ),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'Choose Wallet Option',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (isLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
                 ),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor:  const Color.fromARGB(90, 99, 0, 238),
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          if (passphraseController.text.isNotEmpty) {
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            try {
-                              final result = await _walletRepo.fetchExistingWallet(passphraseController.text);
-                                if (result['status'] == 'success') {
-                                final address = result['address'];
-                                await _saveImportedWallet(address);
-                                
-                                // Select the imported wallet
-                                final newIndex = wallets.indexWhere((w) => w.address == address);
-                                if (newIndex != -1) {
-                                  await _selectWallet(newIndex);
-                                }
-                                
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Wallet imported successfully'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to import wallet: ${e.toString()}'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              setState(() {
-                                isLoading = false;
-                              });
-                            }
-                          }
-                        },
-                  child: const Text('Import'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _createWallet();
+                  },
+                  child: const Text('Create New Wallet',style: TextStyle(color: Colors.white),),
                 ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:  const Color.fromARGB(90, 99, 0, 238),
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showImportWalletDialog();
+                  },
+                  child: const Text('Add Existing Wallet via Private Key',style: TextStyle(color: Colors.white)),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:  const Color.fromARGB(90, 99, 0, 238),
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showImportMnemonicWalletDialog();
+                  },
+                  child: const Text('Add Existing Wallet via Mnemonic',style: TextStyle(color: Colors.white)),
+                ),
+                const SizedBox(height: 16),
               ],
-            );
-          }
+            ),
+          ),
         );
       },
     );
+  }  void _showImportWalletDialog() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PrivateKeyImportPage(
+          walletRepo: _walletRepo,
+          onWalletImported: (String address) async {
+            await _saveImportedWallet(address);
+            
+            // Select the imported wallet
+            final newIndex = wallets.indexWhere((w) => w.address == address);
+            if (newIndex != -1 && mounted) {
+              await _selectWallet(newIndex);
+            }
+            
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Wallet imported successfully'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
   }
+
   void _showImportMnemonicWalletDialog() {
-    final TextEditingController mnemonicController = TextEditingController();
-    bool isLoading = false;
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF1E1E1E),
-              title: const Text(
-                'Import Wallet',
-                style: TextStyle(color: Colors.white),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: mnemonicController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your mnemonic',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: AppColors.primary),
-                      ),
-                    ),
-                  ),
-                  if (isLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MnemonicImportPage(
+          walletRepo: _walletRepo,
+          onWalletImported: (String address) async {
+            await _saveImportedWallet(address);
+            
+            // Select the imported wallet
+            final newIndex = wallets.indexWhere((w) => w.address == address);
+            if (newIndex != -1 && mounted) {
+              await _selectWallet(newIndex);
+            }
+            
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Wallet imported successfully'),
+                  backgroundColor: Colors.green,
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                  ),
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          if (mnemonicController.text.isNotEmpty) {
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            try {                              final result = await _walletRepo.fetchByMnemonic(mnemonicController.text);
-                                if (result['status'] == 'success') {
-                                final address = result['address'];
-                                await _saveImportedWallet(address);
-                                
-                                // Select the imported wallet
-                                final newIndex = wallets.indexWhere((w) => w.address == address);
-                                if (newIndex != -1) {
-                                  await _selectWallet(newIndex);
-                                }
-                                
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Wallet imported successfully'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to import wallet: ${e.toString()}'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              setState(() {
-                                isLoading = false;
-                              });
-                            }
-                          }
-                        },
-                  child: const Text('Import'),
-                ),
-              ],
-            );
-          }
-        );
-      },
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 
@@ -737,6 +618,518 @@ class _WalletsPageState extends State<WalletsPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class PrivateKeyImportDialog extends StatefulWidget {
+  final Function(String) onWalletImported;
+  final WalletCreateRepo walletRepo;
+
+  const PrivateKeyImportDialog({
+    Key? key,
+    required this.onWalletImported,
+    required this.walletRepo,
+  }) : super(key: key);
+
+  @override
+  State<PrivateKeyImportDialog> createState() => _PrivateKeyImportDialogState();
+}
+
+class _PrivateKeyImportDialogState extends State<PrivateKeyImportDialog> {
+  final TextEditingController passphraseController = TextEditingController();
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    passphraseController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _importWallet() async {
+    if (passphraseController.text.isEmpty) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final result = await widget.walletRepo.fetchExistingWallet(passphraseController.text);
+      if (result['status'] == 'success') {
+        final address = result['address'];
+        widget.onWalletImported(address);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to import wallet: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF1E1E1E),
+      title: const Text(
+        'Import Wallet',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: passphraseController,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Enter your private key',
+              hintStyle: TextStyle(color: Colors.grey),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+            ),
+          ),
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: isLoading ? null : () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+          ),
+          onPressed: isLoading ? null : _importWallet,
+          child: const Text('Import'),
+        ),
+      ],
+    );
+  }
+}
+
+class MnemonicImportDialog extends StatefulWidget {
+  final Function(String) onWalletImported;
+  final WalletCreateRepo walletRepo;
+
+  const MnemonicImportDialog({
+    Key? key,
+    required this.onWalletImported,
+    required this.walletRepo,
+  }) : super(key: key);
+
+  @override
+  State<MnemonicImportDialog> createState() => _MnemonicImportDialogState();
+}
+
+class _MnemonicImportDialogState extends State<MnemonicImportDialog> {
+  final TextEditingController mnemonicController = TextEditingController();
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    mnemonicController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _importWallet() async {
+    if (mnemonicController.text.isEmpty) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final result = await widget.walletRepo.fetchByMnemonic(mnemonicController.text);
+      if (result['status'] == 'success') {
+        final address = result['address'];
+        widget.onWalletImported(address);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to import wallet: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF1E1E1E),
+      title: const Text(
+        'Import Wallet',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: mnemonicController,
+            style: const TextStyle(color: Colors.white),
+            maxLines: 3,
+            decoration: const InputDecoration(
+              hintText: 'Enter your recovery phrase (mnemonic)',
+              hintStyle: TextStyle(color: Colors.grey),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+            ),
+          ),
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: isLoading ? null : () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+          ),
+          onPressed: isLoading ? null : _importWallet,
+          child: const Text('Import'),
+        ),
+      ],
+    );
+  }
+}
+
+class PrivateKeyImportPage extends StatefulWidget {
+  final Function(String) onWalletImported;
+  final WalletCreateRepo walletRepo;
+
+  const PrivateKeyImportPage({
+    Key? key,
+    required this.onWalletImported,
+    required this.walletRepo,
+  }) : super(key: key);
+
+  @override
+  State<PrivateKeyImportPage> createState() => _PrivateKeyImportPageState();
+}
+
+class _PrivateKeyImportPageState extends State<PrivateKeyImportPage> {
+  final TextEditingController passphraseController = TextEditingController();
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    passphraseController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _importWallet() async {
+    if (passphraseController.text.isEmpty) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final result = await widget.walletRepo.fetchExistingWallet(passphraseController.text);
+      if (result['status'] == 'success') {
+        final address = result['address'];
+        widget.onWalletImported(address);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to import wallet: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF121212),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Import Wallet',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Enter Private Key',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passphraseController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Enter your private key',
+                hintStyle: TextStyle(color: Colors.grey),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primary),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              onPressed: isLoading ? null : _importWallet,
+              child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Import Wallet',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MnemonicImportPage extends StatefulWidget {
+  final Function(String) onWalletImported;
+  final WalletCreateRepo walletRepo;
+
+  const MnemonicImportPage({
+    Key? key,
+    required this.onWalletImported,
+    required this.walletRepo,
+  }) : super(key: key);
+
+  @override
+  State<MnemonicImportPage> createState() => _MnemonicImportPageState();
+}
+
+class _MnemonicImportPageState extends State<MnemonicImportPage> {
+  final TextEditingController mnemonicController = TextEditingController();
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    mnemonicController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _importWallet() async {
+    final words = mnemonicController.text.trim().split(' ').where((word) => word.isNotEmpty).toList();
+    
+    if (words.length != 12) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter exactly 12 words'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final result = await widget.walletRepo.fetchByMnemonic(mnemonicController.text);
+      if (result['status'] == 'success') {
+        final address = result['address'];
+        widget.onWalletImported(address);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to import wallet: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF121212),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Import Wallet',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [            const Text(
+              'Enter Recovery Phrase',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade800),
+              ),
+              padding: const EdgeInsets.all(12),              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: mnemonicController,
+                    style: const TextStyle(color: Colors.white),
+                    maxLines: null, // Allow unlimited lines
+                    minLines: 4, // Start with 4 lines
+                    textAlignVertical: TextAlignVertical.top,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your 12-word recovery phrase\n',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  AnimatedBuilder(
+                    animation: mnemonicController,
+                    builder: (context, child) {
+                      final wordCount = mnemonicController.text.trim().split(' ').where((word) => word.isNotEmpty).length;
+                      final color = wordCount == 12 ? Colors.green : Colors.grey;
+                      return Text(
+                        'Words: $wordCount/12',
+                        style: TextStyle(color: color, fontSize: 12),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              onPressed: isLoading ? null : _importWallet,
+              child: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Import Wallet',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

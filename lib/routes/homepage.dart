@@ -102,27 +102,27 @@ class HomePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.textSecondary),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: const Text(
-                'Buy Crypto',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: OutlinedButton(
+          //     onPressed: () {},
+          //     style: OutlinedButton.styleFrom(
+          //       side: const BorderSide(color: AppColors.textSecondary),
+          //       padding: const EdgeInsets.symmetric(vertical: 16),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(24),
+          //       ),
+          //     ),
+          //     child: const Text(
+          //       'Buy Crypto',
+          //       style: TextStyle(
+          //         color: AppColors.textPrimary,
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
@@ -136,7 +136,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'Buy IDC',
+                'Buy INDG',
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -146,28 +146,29 @@ class HomePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.textSecondary),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: const Text(
-                'Deposit Crypto',
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: OutlinedButton(
+          //     onPressed: () {},
+          //     style: OutlinedButton.styleFrom(
+          //       side: const BorderSide(color: AppColors.textSecondary),
+          //       padding: const EdgeInsets.symmetric(vertical: 16),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(24),
+          //       ),
+          //     ),
+          //     child: const Text(
+          //       'Deposit Crypto',
+          //       style: TextStyle(
+          //         color: AppColors.textPrimary,
+          
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 8),
           Center(
             child: TextButton(
               onPressed: () {},

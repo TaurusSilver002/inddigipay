@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
@@ -13,11 +12,13 @@ import 'package:inddigipay/components/qr_scanner.dart';
 import 'package:inddigipay/config.dart';
 import 'package:inddigipay/repo/walletsend.dart';
 import 'package:inddigipay/routes/homepage.dart';
-import 'package:inddigipay/routes/login.dart';
 import 'package:inddigipay/routes/profile_redirector.dart';
 import 'package:inddigipay/routes/transaction_history.dart';
 import 'package:inddigipay/routes/wallets.dart';
+import 'package:inddigipay/routes/send_page.dart';
+import 'package:inddigipay/routes/receive_page.dart';
 import 'package:inddigipay/services/locator.dart';
+import 'package:inddigipay/utils/route_transitions.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,49 +72,47 @@ class _HomeScreenState extends State<HomeScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-  }
-
-  void _openSendDialog(BuildContext context) {
+  }  void _openSendPage(BuildContext context) {
     if (selectedWalletAddress == null) {
       Fluttertoast.showToast(msg: "Please select a wallet first");
       return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => BlocProvider(
-        create: (context) => WalletsendBloc(locator<WalletSendRepo>()),
-        child: SendDialog(
+    }    
+    Navigator.push(
+      context,
+      SlidePageRoute(
+        page: BlocProvider(
+          create: (context) => WalletsendBloc(locator<WalletSendRepo>()),
+          child: SendPage(
+            walletAddress: selectedWalletAddress!,
+            walletName: selectedWalletName,
+            secureStorage: _secureStorage,
+            onSuccess: _loadSelectedWallet,
+          ),
+        ),
+      ),
+    );
+  }
+  void _openReceivePage(BuildContext context) {
+    if (selectedWalletAddress == null) {
+      Fluttertoast.showToast(msg: "Please select a wallet first");
+      return;
+    }    
+    Navigator.push(
+      context,
+      SlidePageRoute(
+        page: ReceivePage(
           walletAddress: selectedWalletAddress!,
           walletName: selectedWalletName,
-          secureStorage: _secureStorage,
-          onSuccess: _loadSelectedWallet,
         ),
       ),
     );
   }
 
-  void _openReceiveDialog(BuildContext context) {
-    if (selectedWalletAddress == null) {
-      Fluttertoast.showToast(msg: "Please select a wallet first");
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => ReceiveDialog(
-        walletAddress: selectedWalletAddress!,
-        walletName: selectedWalletName,
-      ),
-    );
-  }
-
   Future<void> _openWalletsPage() async {
-    final walletBalanceBloc = context.read<WalletbalanceBloc>();
-    final result = await Navigator.push<bool>(
+    final walletBalanceBloc = context.read<WalletbalanceBloc>();    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (context) => BlocProvider<WalletbalanceBloc>.value(
+      SlidePageRoute(
+        page: BlocProvider<WalletbalanceBloc>.value(
           value: walletBalanceBloc,
           child: const WalletsPage(),
         ),
@@ -155,21 +154,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           Fluttertoast.showToast(msg: "Please select a wallet first");
                           return;
                         }
-                        final transHistoryBloc = TransHistoryBloc();
+                    final transHistoryBloc = TransHistoryBloc();
                         await Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
+                          SlidePageRoute(
+                            page: BlocProvider(
                               create: (_) => transHistoryBloc,
                               child: TransactionHistory(walletAddress: selectedWalletAddress!),
                             ),
                           ),
                         );
                       },
-                    ),
-                    IconButton(
+                    ),                    IconButton(
                       icon: const Icon(Icons.qr_code, color: AppColors.textPrimary),
-                      onPressed: () => _openReceiveDialog(context),
+                      onPressed: () => _openReceivePage(context),
                     ),
                   ],
                 ),
@@ -201,12 +199,11 @@ class _HomeScreenState extends State<HomeScreen> {
               _currentIndex = index;
             });
           },
-          children: [
-            HomePage(
+          children: [            HomePage(
               selectedWalletName: selectedWalletName,
               selectedWalletAddress: selectedWalletAddress,
-              onSendTap: () => _openSendDialog(context),
-              onReceiveTap: () => _openReceiveDialog(context),
+              onSendTap: () => _openSendPage(context),
+              onReceiveTap: () => _openReceivePage(context),
             ),
             const ProfileRedirector(),
           ],

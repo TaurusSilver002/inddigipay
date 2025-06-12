@@ -226,18 +226,55 @@ class _TransactionHistoryState extends State<TransactionHistory> {
         builder: (context, state) {
           if (state is TransHistoryLoading && !_isLoadingMore) {
             return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is TransHistoryError) {
+          }          if (state is TransHistoryError) {
             return Center(
-              child: Text(
-                state.message,
-                style: TextStyle(color: AppColors.textSecondary),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 48,
+                    color: AppColors.textSecondary.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.message == "Invalid response format" ? "No transactions found" : state.message,
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             );
           }
-
+          
           if (state is TransHistoryLoaded) {
+            if (state.transactions.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.history_rounded,
+                      size: 48,
+                      color: AppColors.textSecondary.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No transactions found',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
             return ListView.builder(
               controller: _scrollController,
               itemCount: state.transactions.length + (_isLoadingMore ? 1 : 0),
