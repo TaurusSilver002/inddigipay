@@ -27,7 +27,8 @@ class _WalletsPageState extends State<WalletsPage> {
   final List<Wallet> wallets = [];
   int selectedIndex = 0;
   final _secureStorage = const FlutterSecureStorage();
-  late final WalletCreateRepo _walletRepo;  @override
+  late final WalletCreateRepo _walletRepo; 
+   @override
   void initState() {
     super.initState();
     _walletRepo = WalletCreateRepo();
@@ -322,62 +323,166 @@ class _WalletsPageState extends State<WalletsPage> {
 
     if (!mounted) return;
 
+    bool showPrivateKey = false;
+    bool showMnemonic = false;
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF1E1E1E),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    wallet.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Dialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      wallet.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildDetailSection(
+                  context,
+                  'Wallet Address',
+                  wallet.address,
+                ),
+                if (walletData['private_key'] != null) ...[
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Private Key',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              showPrivateKey ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                showPrivateKey = !showPrivateKey;
+                              });
+                            },
+                            tooltip: showPrivateKey ? 'Hide' : 'Show',
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF282828),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                showPrivateKey ? walletData['private_key'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
+                                style: const TextStyle(color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: walletData['private_key']));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Private Key copied to clipboard')),
+                                );
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              _buildDetailSection(
-                context,
-                'Wallet Address',
-                wallet.address,
-              ),
-              if (walletData['private_key'] != null) ...[
-                const SizedBox(height: 16),
-                _buildDetailSection(
-                  context,
-                  'Private Key',
-                  walletData['private_key'],
-                ),
+                if (walletData['mnemonic'] != null) ...[
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Recovery Phrase',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              showMnemonic ? Icons.visibility : Icons.visibility_off,
+                              color: Colors.grey,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                showMnemonic = !showMnemonic;
+                              });
+                            },
+                            tooltip: showMnemonic ? 'Hide' : 'Show',
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF282828),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                showMnemonic ? walletData['mnemonic'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
+                                style: const TextStyle(color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: walletData['mnemonic']));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Recovery Phrase copied to clipboard')),
+                                );
+                              },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Never share your recovery phrase or private key with anyone.',
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-              if (walletData['mnemonic'] != null) ...[
-                const SizedBox(height: 16),
-                _buildDetailSection(
-                  context,
-                  'Recovery Phrase',
-                  walletData['mnemonic'],
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Never share your recovery phrase or private key with anyone.',
-                  style: TextStyle(color: Colors.red, fontSize: 12),
-                ),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -688,17 +793,24 @@ class _PrivateKeyImportDialogState extends State<PrivateKeyImportDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-            controller: passphraseController,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              hintText: 'Enter your private key',
-              hintStyle: TextStyle(color: Colors.grey),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary),
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade800),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: passphraseController,
+              style: const TextStyle(color: Colors.white),
+              maxLines: null, // Allow unlimited lines
+              minLines: 4, // Start with 4 lines
+              textAlignVertical: TextAlignVertical.top,
+              decoration: const InputDecoration(
+                hintText: 'Enter your private key',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
               ),
             ),
           ),
@@ -921,18 +1033,26 @@ class _PrivateKeyImportPageState extends State<PrivateKeyImportPage> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: passphraseController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Enter your private key',
-                hintStyle: TextStyle(color: Colors.grey),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.primary),
-                ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E1E1E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade800),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                controller: passphraseController,
+                style: const TextStyle(color: Colors.white),
+                maxLines: null, // Allow unlimited lines
+                    minLines: 4, // Start with 4 lines
+                    textAlignVertical: TextAlignVertical.top,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your private key',
+                  hintStyle: TextStyle(color: Colors.grey),
+                 border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                  ),
+                
               ),
             ),
             const SizedBox(height: 24),
@@ -1056,7 +1176,8 @@ class _MnemonicImportPageState extends State<MnemonicImportPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [            const Text(
+          children: [
+              const Text(
               'Enter Recovery Phrase',
               style: TextStyle(
                 color: Colors.white,
@@ -1071,7 +1192,8 @@ class _MnemonicImportPageState extends State<MnemonicImportPage> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey.shade800),
               ),
-              padding: const EdgeInsets.all(12),              child: Column(
+              padding: const EdgeInsets.all(12),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [

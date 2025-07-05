@@ -13,11 +13,12 @@ class WalletbalanceLoading extends WalletbalanceState {}
 
 class WalletbalanceLoaded extends WalletbalanceState {
   final double balance;
+  final String address;
 
-  const WalletbalanceLoaded({required this.balance});
+  const WalletbalanceLoaded({required this.balance, required this.address});
 
   @override
-  List<Object> get props => [balance];
+  List<Object> get props => [balance, address];
 }
 
 class WalletbalanceError extends WalletbalanceState {

@@ -22,8 +22,7 @@ class WalletbalanceBloc extends Bloc<WalletbalanceEvent, WalletbalanceState> {  
       try {        // Use the address provided in the event
         final result = await repository.fetchBalance(event.address);
         final balance = double.tryParse(result['balance'].toString()) ?? 0.0;
-        
-        emit(WalletbalanceLoaded(balance: balance));
+        emit(WalletbalanceLoaded(balance: balance, address: event.address));
         return; // Success, exit the retry loop
       } catch (e) {
         retryCount++;
