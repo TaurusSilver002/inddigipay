@@ -7,10 +7,13 @@ import 'package:inddigipay/bloc/wthdrawBloc/withdraw_bloc.dart';
 import 'package:inddigipay/components/appbarlog.dart';
 import 'package:inddigipay/components/gradientoutlinedbutton.dart';
 import 'package:inddigipay/config.dart';
+import 'package:inddigipay/routes/alltransaction.dart';
 import 'package:inddigipay/routes/dashboardcards/deposit.dart';
 import 'package:inddigipay/routes/dashboardcards/referpage.dart';
 import 'package:inddigipay/routes/dashboardcards/transactions.dart';
 import 'package:inddigipay/routes/dashboardcards/withdrawl.dart';
+import 'package:inddigipay/routes/profile/profile.dart';
+import 'package:inddigipay/utils/route_transitions.dart';
 
 class DashboardApp extends StatefulWidget {
   const DashboardApp({super.key});
@@ -145,6 +148,10 @@ class _DashboardAppState extends State<DashboardApp> {
                   const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        SlidePageRoute(page:  AllTransactionApp()),
+                      );
                     },
                     child: const Text(
                       'View more',
@@ -591,7 +598,7 @@ class _DashboardAppState extends State<DashboardApp> {
                         const SizedBox(height: 24),
                         GradientOutlinedButton(
                           onPressed: () {
-                            
+                            SlidePageRoute(page: Profile());
                           },
                           text: 'Update',
                           gradientColors: const [

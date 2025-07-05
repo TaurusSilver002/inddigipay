@@ -86,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
             walletAddress: selectedWalletAddress!,
             walletName: selectedWalletName,
             secureStorage: _secureStorage,
+            
             onSuccess: _loadSelectedWallet,
           ),
         ),

@@ -7,11 +7,14 @@ import 'package:inddigipay/bloc/walletsendBloc/walletsend_bloc.dart';
 import 'package:inddigipay/components/qr_scanner.dart';
 import 'package:inddigipay/config.dart';
 
+
+
 class SendPage extends StatefulWidget {
   final String walletAddress;
   final String walletName;
   final FlutterSecureStorage secureStorage;
   final VoidCallback onSuccess;
+  final double? inrRate;
 
   const SendPage({
     Key? key,
@@ -19,16 +22,41 @@ class SendPage extends StatefulWidget {
     required this.walletName,
     required this.secureStorage,
     required this.onSuccess,
+     this.inrRate,
   }) : super(key: key);
 
   @override
   _SendPageState createState() => _SendPageState();
 }
 
+
 class _SendPageState extends State<SendPage> {
   final _recipientController = TextEditingController();
   final _amountController = TextEditingController();
   final _passphraseController = TextEditingController();
+
+  String _amountInINR = '';
+  double? _inrRate;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadINRRateFromStorage();
+    _amountController.addListener(_updateINRValue);
+  }
+
+  Future<void> _loadINRRateFromStorage() async {
+    final value = await widget.secureStorage.read(key: 'inrRate');
+    if (value != null) {
+      final rate = double.tryParse(value);
+      if (mounted) {
+        setState(() {
+          _inrRate = rate;
+        });
+        _updateINRValue();
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -36,6 +64,28 @@ class _SendPageState extends State<SendPage> {
     _amountController.dispose();
     _passphraseController.dispose();
     super.dispose();
+  }
+
+  void _updateINRValue() {
+    final text = _amountController.text.trim();
+    final inrRate = _inrRate;
+    if (inrRate == null || text.isEmpty) {
+      setState(() {
+        _amountInINR = '';
+      });
+      return;
+    }
+    final amount = double.tryParse(text);
+    if (amount == null) {
+      setState(() {
+        _amountInINR = '';
+      });
+      return;
+    }
+    final inrValue = amount * inrRate;
+    setState(() {
+      _amountInINR = '≈ ₹${inrValue.toStringAsFixed(2)}';
+    });
   }
 
   Future<void> _handleSend(BuildContext context) async {
@@ -80,7 +130,8 @@ class _SendPageState extends State<SendPage> {
         elevation: 0,
         title: Text(
           'Send from ${widget.walletName}',
-          style: const TextStyle(color: AppColors.textPrimary),
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
@@ -188,6 +239,26 @@ class _SendPageState extends State<SendPage> {
                     borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
+              ),
+              // INR value display below amount
+              Builder(
+                builder: (context) {
+                  if (_inrRate == null) {
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
+                      child: Text('INR rate unavailable', style: TextStyle(color: Colors.red)),
+                    );
+                  } else if (_amountController.text.trim().isEmpty) {
+                    return const SizedBox.shrink();
+                  } else if (_amountInINR.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(_amountInINR, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
               const SizedBox(height: 24),
               BlocBuilder<WalletsendBloc, WalletsendState>(

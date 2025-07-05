@@ -1,8 +1,23 @@
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:inddigipay/bloc/walletbalanceBloc/walletbalance_bloc.dart';
 import 'package:inddigipay/config.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+Future<double?> fetchINRRate() async {
+  try {
+    final response = await http.get(Uri.parse('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=inr'));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data['tether']['inr'] as num).toDouble();
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
 
 // Dummy implementation, replace with your actual fetchBNBBalance logic
 Future<String> fetchBNBBalance(String? address) async {
@@ -12,7 +27,8 @@ Future<String> fetchBNBBalance(String? address) async {
   return '1.2345';
 }
 
-class HomePage extends StatelessWidget {
+
+class HomePage extends StatefulWidget {
   final String selectedWalletName;
   final String? selectedWalletAddress;
   final Function() onSendTap;
@@ -27,7 +43,41 @@ class HomePage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  double? inrRate;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadINRRate();
+  }
+
+  Future<void> _loadINRRate() async {
+    final rate = await fetchINRRate();
+    if (mounted) {
+      setState(() {
+        inrRate = rate;
+      });
+    }
+    if (rate != null) {
+      await _secureStorage.write(key: 'inrRate', value: rate.toString());
+    }
+  }
+
+  // Optionally, call this to get the last saved INR rate
+  Future<double?> _getSavedINRRate() async {
+    final value = await _secureStorage.read(key: 'inrRate');
+    if (value == null) return null;
+    return double.tryParse(value);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Optionally, you could use _getSavedINRRate() here if inrRate is null
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -39,7 +89,7 @@ class HomePage extends StatelessWidget {
               if (state is WalletbalanceLoaded) {
                 walletAddress = state.address;
               } else {
-                walletAddress = selectedWalletAddress;
+                walletAddress = widget.selectedWalletAddress;
               }
               return Column(
                 children: [
@@ -47,13 +97,42 @@ class HomePage extends StatelessWidget {
                     child: state is WalletbalanceLoading
                         ? const CircularProgressIndicator()
                         : state is WalletbalanceLoaded
-                            ? Text(
-                                '\$${state.balance.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            ? Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '\$${state.balance.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          color: AppColors.textPrimary,
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      if (inrRate != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                                          child: Text(
+                                            '≈ ₹${(state.balance * inrRate!).toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: AppColors.textSecondary,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 8.0, top: 8.0),
+                                          child: SizedBox(
+                                            height: 8,
+                                            width: 8,
+                                            child: CircularProgressIndicator(strokeWidth: 1),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
                               )
                             : state is WalletbalanceError
                                 ? Text(
@@ -138,8 +217,8 @@ class HomePage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildActionButton(Icons.arrow_upward, 'Send', onSendTap),
-              _buildActionButton(Icons.arrow_downward, 'Receive', onReceiveTap),
+              _buildActionButton(Icons.arrow_upward, 'Send', widget.onSendTap),
+              _buildActionButton(Icons.arrow_downward, 'Receive', widget.onReceiveTap),
             ],
           ),
           const SizedBox(height: 24),

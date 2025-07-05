@@ -8,6 +8,7 @@ import 'package:inddigipay/routes/dashboard.dart';
 import 'package:inddigipay/routes/homescreen.dart';
 import 'package:inddigipay/routes/homescreen_new.dart';
 import 'package:inddigipay/routes/login.dart';
+import 'package:inddigipay/routes/profile/profile.dart';
 import 'package:inddigipay/routes/signup.dart';
 import 'package:inddigipay/routes/transaction_history.dart';
 import 'package:inddigipay/routes/wallets.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
             initialRoute: '/',
             routes: {
               '/': (context) => const HomeScreen(), 
+              '/myprofile': (context) => const Profile(),
               '/dashboard': (context) => const DashboardApp(),
               '/wallets': (context) => const WalletsPage(),
               '/login': (context) => const LoginpageApp(),
