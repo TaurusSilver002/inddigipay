@@ -1,16 +1,22 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:inddigipay/bloc/loginBloc/login_bloc.dart';
 import 'package:inddigipay/bloc/transactionbloc/transaction_bloc.dart';
+import 'package:inddigipay/bloc/updatewalletBloc/updatewallet_bloc_bloc.dart';
 import 'package:inddigipay/bloc/userBloc/user_bloc.dart';
 import 'package:inddigipay/bloc/wthdrawBloc/withdraw_bloc.dart';
 import 'package:inddigipay/components/appbarlog.dart';
 import 'package:inddigipay/components/gradientoutlinedbutton.dart';
 import 'package:inddigipay/config.dart';
+import 'package:inddigipay/repo/auth.dart';
 import 'package:inddigipay/routes/dashboardcards/deposit.dart';
 import 'package:inddigipay/routes/dashboardcards/referpage.dart';
 import 'package:inddigipay/routes/dashboardcards/transactions.dart';
 import 'package:inddigipay/routes/dashboardcards/withdrawl.dart';
+import 'package:inddigipay/routes/profile/profile.dart';
+import 'package:inddigipay/utils/route_transitions.dart';
 
 class DashboardApp extends StatefulWidget {
   const DashboardApp({super.key});
@@ -304,7 +310,11 @@ class _DashboardAppState extends State<DashboardApp> {
       ],
     );
   }
-
+void _fetchDashboardData() {
+  // Refresh both transaction and user data
+  context.read<TransactionBloc>().add(const FetchTransactionEvent(page: 1, limit: 3));
+  context.read<UserBloc>().add(const FetchUserEvent());
+}
   Widget _buildCard({
     required BuildContext context,
     required String title,
@@ -590,9 +600,28 @@ class _DashboardAppState extends State<DashboardApp> {
                         ),
                         const SizedBox(height: 24),
                         GradientOutlinedButton(
-                          onPressed: () {
-                            
-                          },
+                       onPressed: () {
+  Navigator.push(
+    context,
+    SlidePageRoute(
+      page: MultiBlocProvider(
+        providers: [
+          BlocProvider<UserBloc>.value(
+            value: BlocProvider.of<UserBloc>(context),
+          ),
+          BlocProvider(
+            create: (context) => UpdatewalletBloc(Dio()),
+          ),
+          BlocProvider(
+            create: (context) => LoginBloc(AuthRepo(Dio())),
+          ),
+        ],
+        child: const Profile(),
+      ),
+    ),
+  ).then((_) => _fetchDashboardData()); // Refresh data when returning
+},
+                          
                           text: 'Update',
                           gradientColors: const [
                             Color(0xFFFF3BFF),
