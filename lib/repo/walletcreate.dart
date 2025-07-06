@@ -77,8 +77,23 @@ class WalletCreateRepo {
         ),
       );      if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
+        // Debug log to see the structure of the API response
+        print("Mnemonic API response structure: ${data.keys.join(', ')}");
+        print("Contains private_key? ${data.containsKey('private_key')}");
+        
         if (data['status'] == 'success') {
-          return Map<String, dynamic>.from(data); // Return the complete response
+          // Create a result with all necessary fields
+          final result = Map<String, dynamic>.from(data);
+          
+          // Check if we need to extract private key from nested data
+          if (!result.containsKey('private_key') && data.containsKey('data')) {
+            final nestedData = data['data'];
+            if (nestedData is Map && nestedData.containsKey('private_key')) {
+              result['private_key'] = nestedData['private_key'];
+            }
+          }
+          
+          return result; // Return the enhanced response
         } else {
           throw Exception(data['message'] ?? 'Failed to retrieve wallet');
         }

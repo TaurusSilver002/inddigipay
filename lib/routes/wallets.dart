@@ -128,7 +128,7 @@ class _WalletsPageState extends State<WalletsPage> {
     await _secureStorage.write(key: 'currentName', value: walletName);
     await _secureStorage.write(key: 'currentAddress', value: address);
   }
-  Future<void> _saveImportedWallet(String address) async {
+  Future<void> _saveImportedWallet(String address, {String? privateKey, String? mnemonic}) async {
     final walletsJson = await _secureStorage.read(key: 'wallets') ?? '[]';
     List<Map<String, dynamic>> walletsList = List<Map<String, dynamic>>.from(
       jsonDecode(walletsJson)
@@ -136,10 +136,12 @@ class _WalletsPageState extends State<WalletsPage> {
 
     final walletName = 'Imported Wallet ${walletsList.length + 1}';
     
-    // Create new wallet data
+    // Create new wallet data with private key and mnemonic if available
     final newWallet = {
       'name': walletName,
       'address': address,
+      if (privateKey != null) 'private_key': privateKey,
+      if (mnemonic != null) 'mnemonic': mnemonic,
     };
     
     // Add to list and save
@@ -254,8 +256,13 @@ class _WalletsPageState extends State<WalletsPage> {
       MaterialPageRoute(
         builder: (context) => PrivateKeyImportPage(
           walletRepo: _walletRepo,
-          onWalletImported: (String address) async {
-            await _saveImportedWallet(address);
+          onWalletImported: (String address, {String? privateKey, String? mnemonic}) async {
+            // Save with the private key used to import
+            await _saveImportedWallet(
+              address, 
+              privateKey: privateKey,
+              mnemonic: mnemonic
+            );
             
             // Select the imported wallet
             final newIndex = wallets.indexWhere((w) => w.address == address);
@@ -283,8 +290,9 @@ class _WalletsPageState extends State<WalletsPage> {
       MaterialPageRoute(
         builder: (context) => MnemonicImportPage(
           walletRepo: _walletRepo,
-          onWalletImported: (String address) async {
-            await _saveImportedWallet(address);
+          onWalletImported: (String address, {String? privateKey, String? mnemonic}) async {
+            // Save with all wallet details including private key and mnemonic
+            await _saveImportedWallet(address, privateKey: privateKey, mnemonic: mnemonic);
             
             // Select the imported wallet
             final newIndex = wallets.indexWhere((w) => w.address == address);
@@ -320,7 +328,16 @@ class _WalletsPageState extends State<WalletsPage> {
         'address': wallet.address,
       }
     );
-
+    
+    // Debug log to see what wallet data we have
+    print("Wallet details for ${wallet.name}: ${walletData.keys.join(", ")}");
+    print("Has private key: ${walletData.containsKey('private_key')}");
+    print("Has mnemonic: ${walletData.containsKey('mnemonic')}");
+    
+    if (walletData.containsKey('private_key')) {
+      print("Private key value available for display");
+    }
+    
     if (!mounted) return;
 
     bool showPrivateKey = false;
@@ -944,7 +961,7 @@ class _MnemonicImportDialogState extends State<MnemonicImportDialog> {
 }
 
 class PrivateKeyImportPage extends StatefulWidget {
-  final Function(String) onWalletImported;
+  final Function(String, {String? privateKey, String? mnemonic}) onWalletImported;
   final WalletCreateRepo walletRepo;
 
   const PrivateKeyImportPage({
@@ -975,10 +992,16 @@ class _PrivateKeyImportPageState extends State<PrivateKeyImportPage> {
     });
 
     try {
-      final result = await widget.walletRepo.fetchExistingWallet(passphraseController.text);
+      final privateKey = passphraseController.text.trim();
+      final result = await widget.walletRepo.fetchExistingWallet(privateKey);
+      
+      print("Private key import result: $result");
+      
       if (result['status'] == 'success') {
         final address = result['address'];
-        widget.onWalletImported(address);
+        // Save the private key that was used for the import
+        print("Importing wallet with address: $address and private key available");
+        widget.onWalletImported(address, privateKey: privateKey);
       }
     } catch (e) {
       if (mounted) {
@@ -1087,7 +1110,7 @@ class _PrivateKeyImportPageState extends State<PrivateKeyImportPage> {
 }
 
 class MnemonicImportPage extends StatefulWidget {
-  final Function(String) onWalletImported;
+  final Function(String, {String? privateKey, String? mnemonic}) onWalletImported;
   final WalletCreateRepo walletRepo;
 
   const MnemonicImportPage({
@@ -1129,9 +1152,42 @@ class _MnemonicImportPageState extends State<MnemonicImportPage> {
 
     try {
       final result = await widget.walletRepo.fetchByMnemonic(mnemonicController.text);
+      print("Mnemonic import API response: $result"); // Debug log
+      
       if (result['status'] == 'success') {
-        final address = result['address'];
-        widget.onWalletImported(address);
+        // Extract data from the API response
+        final address = result['address'] as String;
+        
+        // Extract private key - check all possible JSON paths
+        String? privateKey;
+        if (result['private_key'] != null) {
+          privateKey = result['private_key'] as String;
+        } else if (result['data'] != null && result['data']['private_key'] != null) {
+          privateKey = result['data']['private_key'] as String;
+        }
+        final mnemonic = mnemonicController.text.trim();
+        
+        // Debug log to see the API response structure
+        print("Wallet API Response: $result");
+        print("Imported wallet - Address: $address, Private Key: ${privateKey != null ? 'Found' : 'Not found'}");
+        
+        // Debug logs for wallet import details
+        print("Wallet import details - Address: $address");
+        print("Private key found: ${privateKey != null}");
+        print("Mnemonic words count: ${mnemonic.split(' ').where((w) => w.isNotEmpty).length}");
+        
+        if (privateKey == null) {
+          // Show warning if private key is not found
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Warning: Private key not found in API response'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        
+        // Pass all data through the callback
+        widget.onWalletImported(address, privateKey: privateKey, mnemonic: mnemonic);
       }
     } catch (e) {
       if (mounted) {

@@ -72,7 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
-  }  void _openSendPage(BuildContext context) {
+  }  
+  void _openSendPage(BuildContext context) {
     if (selectedWalletAddress == null) {
       Fluttertoast.showToast(msg: "Please select a wallet first");
       return;

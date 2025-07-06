@@ -112,6 +112,23 @@ class _ProfileAppNewState extends State<ProfileAppNew> {
           }
 
           return Scaffold(
+            appBar: AppBar(
+              title: const Text('Profile', style: TextStyle(color: Colors.white, fontSize: 16)),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions:[
+                IconButton(
+                  icon: const Icon(
+                    Icons.home,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/dashboard');
+                  },
+                )
+
+              ]
+            ),
             extendBodyBehindAppBar: true,
             body: MultiBlocListener(
               listeners: [

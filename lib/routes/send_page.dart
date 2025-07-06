@@ -230,7 +230,7 @@ class _SendPageState extends State<SendPage> {
                 style: const TextStyle(color: Colors.white),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
-                  hintText: 'Amount',
+                  hintText: 'Amount in USDT',
                   hintStyle: TextStyle(color: Colors.grey),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColors.primary),
