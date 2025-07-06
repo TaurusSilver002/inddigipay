@@ -240,7 +240,6 @@ class _SendPageState extends State<SendPage> {
                   ),
                 ),
               ),
-              // INR value display below amount
               Builder(
                 builder: (context) {
                   if (_inrRate == null) {

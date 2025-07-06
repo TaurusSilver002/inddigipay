@@ -123,7 +123,6 @@ void _applyDateFilter() {
               Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
-                  // This allows the content to grow but ensures a minimum height for visual appeal
                   minHeight: MediaQuery.of(context).size.height - 100,
                 ),
                 decoration: const BoxDecoration(

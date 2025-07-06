@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:inddigipay/config.dart';
 
-// Model for crypto coin data
 class CryptoCoin {
   final String name;
   final String symbol;
@@ -19,19 +18,16 @@ class CryptoCoin {
   });
 }
 
-// Fetch balance for a specific cryptocurrency
 Future<String> fetchCryptoBalance(String? address, String network) async {
   if (address == null || address.isEmpty) return '0';
   
   try {
-    // Replace with actual API endpoint for crypto balance
     final response = await http.get(Uri.parse('${AppConfig.balance}?address=$address&network=$network'));
     
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['status'] == 'success' && data['data'] != null) {
         final balanceInWei = data['data'];
-        // Convert from Wei to coin (most use 10^18 decimals)
         double balanceInCrypto = double.tryParse(balanceInWei.toString()) ?? 0;
         balanceInCrypto = balanceInCrypto / 1e18;
         return balanceInCrypto.toStringAsFixed(4);
@@ -57,7 +53,7 @@ class MergeCryptoPage extends StatefulWidget {
 }
 
 class _MergeCryptoPageState extends State<MergeCryptoPage> {
-  bool isLoading = false; // Set to false to avoid showing loading indicator
+  bool isLoading = false; 
   List<CryptoCoin> supportedCoins = [];
   
   @override
@@ -67,9 +63,7 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
   }
 
   Future<void> _loadCryptoData() async {
-    // Skip setting isLoading to true to avoid showing the loading indicator
-    
-    // Only load BNB and USDT as per requirements
+   
     final coins = [
       CryptoCoin(
         name: 'Binance Coin',
@@ -81,7 +75,7 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
         name: 'Tether',
         symbol: 'USDT',
         imageAsset: AppImages.logo,
-        network: 'TRC-20',
+        network: 'BEP-20',
       ),
     ];
 
@@ -134,7 +128,6 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
     );
   }
 
-  // Portfolio card and currency chip methods have been removed as they're not used in this implementation
 
   Widget _buildCryptoContainer(CryptoCoin coin) {
   
@@ -176,7 +169,7 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
               ],
             ),
             child: Padding(
-              padding: EdgeInsets.all(2.sp), // Border width
+              padding: EdgeInsets.all(2.sp), 
               child: CircleAvatar(
                 backgroundColor: Colors.black,
                 backgroundImage: AssetImage(coin.imageAsset),
@@ -231,7 +224,6 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
             ),
           ),
           SizedBox(width: 8.sp),
-          // Actions
         ],
       ),
     );
@@ -241,15 +233,13 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
   List<Color> _getColorGradientForCoin(String symbol) {
     switch (symbol) {
       case 'BNB':
-        return [Colors.amber, Colors.amber.shade800];
-      case 'ETH':
-        return [Colors.blueAccent, Colors.indigo];
-      case 'USDT':
-        return [Colors.green, Colors.green.shade800];
-      case 'INDG':
         return [AppColors.primary, Colors.deepPurple];
-      default:
+     
+      case 'USDT':
         return [Colors.purple, Colors.blue];
+      
+      default:
+        return [const Color.fromARGB(255, 92, 176, 39), const Color.fromARGB(255, 6, 82, 10)];
     }
   }
 
@@ -258,10 +248,7 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
     switch (network) {
       case 'BEP-20':
         return Colors.amber;
-      case 'ERC-20':
-        return Colors.blue;
-      case 'TRC-20':
-        return Colors.green;
+     
       case 'Custom':
         return Colors.purple;
       default:

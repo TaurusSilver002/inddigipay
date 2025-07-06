@@ -107,7 +107,7 @@ class _WalletsPageState extends State<WalletsPage> {
     );
 
     // Generate wallet name
-    final walletName = 'Wallet ${walletsList.length + 1}';
+    final walletName = 'BSC Wallet ${walletsList.length + 1}';
     
     // Create new wallet data
     final newWallet = {
@@ -342,18 +342,21 @@ class _WalletsPageState extends State<WalletsPage> {
 
     bool showPrivateKey = false;
     bool showMnemonic = false;
+    
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => Dialog(
           backgroundColor: const Color(0xFF1E1E1E),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
+          child: Container(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -409,25 +412,30 @@ class _WalletsPageState extends State<WalletsPage> {
                           color: const Color(0xFF282828),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Text(
-                                showPrivateKey ? walletData['private_key'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
-                                style: const TextStyle(color: Colors.white),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            Text(
+                              showPrivateKey ? walletData['private_key'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
+                              style: const TextStyle(color: Colors.white),
+                              softWrap: true, // Allow text to wrap to multiple lines
+                              maxLines: 3, // Show up to 3 lines
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
-                              onPressed: () {
-                                Clipboard.setData(ClipboardData(text: walletData['private_key']));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Private Key copied to clipboard')),
-                                );
-                              },
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: walletData['private_key']));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Private Key copied to clipboard')),
+                                    );
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -467,25 +475,30 @@ class _WalletsPageState extends State<WalletsPage> {
                           color: const Color(0xFF282828),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Text(
-                                showMnemonic ? walletData['mnemonic'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
-                                style: const TextStyle(color: Colors.white),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            Text(
+                              showMnemonic ? walletData['mnemonic'] : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••',
+                              style: const TextStyle(color: Colors.white),
+                              softWrap: true, // Allow text to wrap to multiple lines
+                              maxLines: 3, // Show up to 3 lines
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
-                              onPressed: () {
-                                Clipboard.setData(ClipboardData(text: walletData['mnemonic']));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Recovery Phrase copied to clipboard')),
-                                );
-                              },
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.copy, color: Colors.grey, size: 20),
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: walletData['mnemonic']));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Recovery Phrase copied to clipboard')),
+                                    );
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -498,7 +511,8 @@ class _WalletsPageState extends State<WalletsPage> {
                     ],
                   ),
                 ],
-              ],
+                ],
+              ),
             ),
           ),
         ),
