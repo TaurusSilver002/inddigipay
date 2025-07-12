@@ -340,7 +340,7 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: const LinearGradient(
-                          colors: [Colors.purple, Colors.blue],
+                          colors: [ Color.fromARGB(255, 234, 143, 7),  Color.fromARGB(255, 241, 92, 6)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -356,7 +356,7 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.all(2.0), // Border width
                         child: CircleAvatar(
                           backgroundColor: Colors.black,
-                          backgroundImage: const AssetImage(AppImages.logo),
+                          backgroundImage: const AssetImage(AppImages.bnb),
                         ),
                       ),
                     ),
@@ -395,6 +395,57 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           const SizedBox(height: 6),
+                         
+                        ],
+                      ),
+                    ),
+                    //  FutureBuilder<String>(
+                    //         future: fetchBNBBalance(walletAddress),
+                    //         builder: (context, snapshot) {
+                    //           if (snapshot.connectionState == ConnectionState.waiting) {
+                    //             return const SizedBox(
+                    //               height: 16,
+                    //               width: 16,
+                    //               child: CircularProgressIndicator(strokeWidth: 2),
+                    //             );
+                    //           } else if (snapshot.hasError) {
+                    //             return const Text(
+                    //               'Error loading balance',
+                    //               style: TextStyle(
+                    //                 color: Colors.red,
+                    //                 fontSize: 12,
+                    //               ),
+                    //             );
+                    //           } else if (snapshot.hasData) {
+                    //             return Text(
+                    //               snapshot.data ?? '0',
+                    //               style: const TextStyle(
+                    //                 color: AppColors.textSecondary,
+                    //                 fontSize: 12,
+                    //                 fontWeight: FontWeight.w500,
+                    //               ),
+                    //             );
+                    //           }
+                    //           return const Text(
+                    //             '0',
+                    //             style: TextStyle(
+                    //               color: AppColors.textSecondary,
+                    //               fontSize: 12,
+                    //               fontWeight: FontWeight.w500,
+                    //             ),
+                    //           );
+                    //         },
+                    //       ),
+                    //       const SizedBox(width: 8),
+                          Text(
+                            'BNB Balance:',
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           FutureBuilder<String>(
                             future: fetchBNBBalance(walletAddress),
                             builder: (context, snapshot) {
@@ -432,9 +483,7 @@ class _HomePageState extends State<HomePage> {
                               );
                             },
                           ),
-                        ],
-                      ),
-                    ),
+                          const SizedBox(width: 8),
                   ],
                 ),
               );

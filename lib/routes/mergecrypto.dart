@@ -68,13 +68,13 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
       CryptoCoin(
         name: 'Binance Coin',
         symbol: 'BNB',
-        imageAsset: AppImages.logo,
+        imageAsset: AppImages.bnb,
         network: 'BEP-20',
       ),
       CryptoCoin(
         name: 'Tether',
         symbol: 'USDT',
-        imageAsset: AppImages.logo,
+        imageAsset: AppImages.tether,
         network: 'BEP-20',
       ),
     ];
@@ -233,7 +233,7 @@ class _MergeCryptoPageState extends State<MergeCryptoPage> {
   List<Color> _getColorGradientForCoin(String symbol) {
     switch (symbol) {
       case 'BNB':
-        return [AppColors.primary, Colors.deepPurple];
+        return [const Color.fromARGB(255, 234, 143, 7), const Color.fromARGB(255, 241, 92, 6)];
      
       case 'USDT':
         return [Colors.purple, Colors.blue];

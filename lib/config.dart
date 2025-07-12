@@ -11,6 +11,8 @@ class AppColors {
 
 class AppImages {
   static const String logo = 'assets/images/logovio.png';
+  static const String tether='assets/images/tether.png';
+  static const String bnb='assets/images/bnb.png';
     static const String background1='assets/images/landing1.png';
     static const String background2='assets/images/mining.png';
 
@@ -30,7 +32,7 @@ class AppConfig{
   static const String verifyuser='https://api.inddigi.com/user/verify_user';
   static const String query='https://api.inddigi.com/user/conversation';
   static const String google='https://api.inddigi.com/user/auth/google/callback';
-  static const String registergoogle='https://api.inddigi.com/user/register/google';  // New dedicated endpoint for Google registration
+  static const String registergoogle='https://api.inddigi.com/user/register/google';  //  Google registration
 
   //static const String transaction='https://abfa-27-131-208-102.ngrok-free.app/transaction/transactions/view';
   static const String transaction='https://api.inddigi.com/transaction/transactions/view';
