@@ -13,42 +13,33 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Define specific actions for each tab
     void _handleNavigation(int index) {
-      // First call the provided onTap callback
       onTap(index);
-      
-      // Then perform any additional actions based on which tab was tapped
-      switch (index) {
-        case 0: // Home tab
-          // Add any specific functionality for the Home tab
-          debugPrint('Home tab tapped with custom handler');
-          break;
-        case 1: // Profile tab
-          // Redirect to profile
-          Navigator.of(context).pushNamed('/profile');
-          break;
-        // Add more cases if you add more tabs
-      }
     }
-
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      onTap: _handleNavigation, // Use our custom handler
-      backgroundColor: AppColors.background,
-      selectedItemColor: AppColors.primary,
-      unselectedItemColor: AppColors.textSecondary,
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: _handleNavigation,
+        backgroundColor: AppColors.background,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'ICO',
+          ),
+        ],
+      ),
     );
   }
 }

@@ -8,9 +8,9 @@ part 'user_event.dart';
 part 'user_state.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
-  final Dio _dio = Dio();
+  final Dio _dio;
 
-  UserBloc() : super(UserInitialState()) {
+  UserBloc(this._dio) : super(UserInitialState()) {
     on<FetchUserEvent>(_onFetchUser);
   }
 

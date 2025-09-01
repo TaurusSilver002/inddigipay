@@ -11,7 +11,10 @@ class AppColors {
 
 class AppImages {
   static const String logo = 'assets/images/logovio.png';
+  static const String tether='assets/images/tether.png';
+  static const String bnb='assets/images/bnb.png';
     static const String background1='assets/images/landing1.png';
+    static const String background2='assets/images/mining.png';
 
   static const String google='assets/images/google.png';
   static const String signcardapp='assets/images/appsignfinal.png';
@@ -29,7 +32,7 @@ class AppConfig{
   static const String verifyuser='https://api.inddigi.com/user/verify_user';
   static const String query='https://api.inddigi.com/user/conversation';
   static const String google='https://api.inddigi.com/user/auth/google/callback';
-  static const String registergoogle='https://api.inddigi.com/user/register/google';  // New dedicated endpoint for Google registration
+  static const String registergoogle='https://api.inddigi.com/user/register/google';  //  Google registration
 
   //static const String transaction='https://abfa-27-131-208-102.ngrok-free.app/transaction/transactions/view';
   static const String transaction='https://api.inddigi.com/transaction/transactions/view';
@@ -39,5 +42,11 @@ class AppConfig{
   static const String deposit='https://api.inddigi.com//transaction/transactions/crypto-deposit';
 
   //new app wallet 
-  static const String walletcreate='https://api.inddigi.com/transaction/wallets';
+  static const String walletcreate='https://api.inddigi.com/transaction/wallet/create';
+  static const String existingwallet='https://api.inddigi.com/transaction/wallet/get_wallet_by_private_key';
+  static const String mnemonic='https://api.inddigi.com/transaction/wallet/get_wallet_by_mnemonic';
+  static const String walletsend='https://api.inddigi.com/transaction/wallet/send';
+  static const String balance='https://api.inddigi.com/transaction/wallet/balance';
+
+  static const String transactionhistory='https://api.inddigi.com/transaction/wallet/viewTransaction';
 }

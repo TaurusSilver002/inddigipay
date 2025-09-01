@@ -1,7 +1,14 @@
 part of 'walletcreate_bloc.dart';
 
-sealed class WalletcreateEvent extends Equatable {
+abstract class WalletcreateEvent extends Equatable {
   const WalletcreateEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class FetchWalletCreate extends WalletcreateEvent {
+  const FetchWalletCreate();
 
   @override
   List<Object> get props => [];
